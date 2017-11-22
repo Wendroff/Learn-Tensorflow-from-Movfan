@@ -1,26 +1,24 @@
-# View more python learning tutorial on my Youtube and Youku channel!!!
 
-# Youtube video tutorial: https://www.youtube.com/channel/UCdyjiB5H8Pu7aDTNVXTTpcg
-# Youku video tutorial: http://i.youku.com/pythontutorial
 
 """
 Please note, this code is only for python 3+. If you are using python 2+, please modify the code accordingly.
 
 Run this script on tensorflow r0.10. Errors appear when using lower versions.
 """
+#%%
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 
-
+#%%
 BATCH_START = 0
-TIME_STEPS = 20
-BATCH_SIZE = 50
+TIME_STEPS = 4
+BATCH_SIZE = 3
 INPUT_SIZE = 1
 OUTPUT_SIZE = 1
 CELL_SIZE = 10
 LR = 0.006
-
+#%%
 
 def get_batch():
     global BATCH_START, TIME_STEPS
@@ -36,24 +34,25 @@ def get_batch():
 
 
 class LSTMRNN(object):
-    def __init__(self, n_steps, input_size, output_size, cell_size, batch_size):
-        self.n_steps = n_steps
-        self.input_size = input_size
+    def __init__(self, n_steps, input_size, output_size, cell_size, batch_size,name=''):
+        self.n_steps     = n_steps
+        self.input_size  = input_size
         self.output_size = output_size
-        self.cell_size = cell_size
-        self.batch_size = batch_size
-        with tf.name_scope('inputs'):
+        self.cell_size   = cell_size
+        self.batch_size  = batch_size
+        self.name        = name
+        with tf.name_scope(self.name+'inputs'):
             self.xs = tf.placeholder(tf.float32, [None, n_steps, input_size], name='xs')
             self.ys = tf.placeholder(tf.float32, [None, n_steps, output_size], name='ys')
-        with tf.variable_scope('in_hidden'):
+        with tf.variable_scope(self.name+'in_hidden'):
             self.add_input_layer()
-        with tf.variable_scope('LSTM_cell'):
+        with tf.variable_scope(self.name+'LSTM_cell'):
             self.add_cell()
-        with tf.variable_scope('out_hidden'):
+        with tf.variable_scope(self.name+'out_hidden'):
             self.add_output_layer()
-        with tf.name_scope('cost'):
+        with tf.name_scope(self.name+'cost'):
             self.compute_cost()
-        with tf.name_scope('train'):
+        with tf.name_scope(self.name+'train'):
             self.train_op = tf.train.AdamOptimizer(LR).minimize(self.cost)
 
     def add_input_layer(self,):
@@ -110,10 +109,11 @@ class LSTMRNN(object):
     def _bias_variable(self, shape, name='biases'):
         initializer = tf.constant_initializer(0.1)
         return tf.get_variable(name=name, shape=shape, initializer=initializer)
-
+#%%
 
 if __name__ == '__main__':
-    model = LSTMRNN(TIME_STEPS, INPUT_SIZE, OUTPUT_SIZE, CELL_SIZE, BATCH_SIZE)
+    model  = LSTMRNN(TIME_STEPS, INPUT_SIZE, OUTPUT_SIZE, CELL_SIZE, BATCH_SIZE,'model1_')
+    #model2 = LSTMRNN(TIME_STEPS, INPUT_SIZE, OUTPUT_SIZE, CELL_SIZE, BATCH_SIZE,'model2')
     sess = tf.Session()
     merged = tf.summary.merge_all()
     writer = tf.summary.FileWriter("logs", sess.graph)
@@ -156,5 +156,5 @@ if __name__ == '__main__':
 
         if i % 20 == 0:
             print('cost: ', round(cost, 4))
-            result = sess.run(merged, feed_dict)
-            writer.add_summary(result, i)
+#            result = sess.run(merged, feed_dict)
+#            writer.add_summary(result, i)
